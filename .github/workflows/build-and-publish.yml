@@ -1,0 +1,49 @@
+name: build-and-publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-date:
+        description: "Release date (YYYY-MM-DD)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  BASE_URI: https://peterwong.net/files/
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download resources
+        env:
+          RESOURCE_URLS: ${{ inputs.urls }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --show-error "{{ env.BASE_URI }}{{ env.GITHUB_REPOSITORY }}/manifest.json" --output "manifest.json"
+
+          readarray -t urls < <(jq -r '.files[]' manifest.json)
+
+          mkdir downloads
+          for filename in "${urls[@]}"; do
+            full_url="{{ env.BASE_URI }}{{ env.GITHUB_REPOSITORY }}/$filename"
+            echo "Processing: $full_url"
+            #curl --fail --location --show-error "$full_url" --output "downloads/$filename"
+          done
+   
+      - name: Create dated draft release
+        if: false
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_date={{ inputs.release-date }}
+          gh release create "$release_date" downloads/* \
+            --draft \
+            --title "$release_date" \
+            --target "$GITHUB_SHA"
