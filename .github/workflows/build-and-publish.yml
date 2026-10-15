@@ -30,11 +30,10 @@ jobs:
           for filename in "${urls[@]}"; do
             full_url="${{ env.BASE_URI }}${{ github.repository }}/$filename"
             echo "Processing: $full_url"
-            #curl --fail --location --show-error "$full_url" --output "downloads/$filename"
+            curl --fail --location --show-error "$full_url" --output "downloads/$filename"
           done
    
       - name: Create dated draft release
-        if: false
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
