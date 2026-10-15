@@ -19,18 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download resources
-        env:
-          RESOURCE_URLS: ${{ inputs.urls }}
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --show-error "{{ env.BASE_URI }}{{ env.GITHUB_REPOSITORY }}/manifest.json" --output "manifest.json"
+          curl --fail --location --show-error "${{ env.BASE_URI }}${{ github.repository }}/manifest.json" --output "manifest.json"
 
           readarray -t urls < <(jq -r '.files[]' manifest.json)
 
           mkdir downloads
           for filename in "${urls[@]}"; do
-            full_url="{{ env.BASE_URI }}{{ env.GITHUB_REPOSITORY }}/$filename"
+            full_url="${{ env.BASE_URI }}${{ github.repository }}/$filename"
             echo "Processing: $full_url"
             #curl --fail --location --show-error "$full_url" --output "downloads/$filename"
           done
