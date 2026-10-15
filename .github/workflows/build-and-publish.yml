@@ -40,8 +40,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          release_date={{ inputs.release-date }}
+          release_date=${{ inputs.release-date }}
           gh release create "$release_date" downloads/* \
             --draft \
-            --title "$release_date" \
+            --title "Release $release_date" \
             --target "$GITHUB_SHA"
